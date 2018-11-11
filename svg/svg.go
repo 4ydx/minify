@@ -75,7 +75,7 @@ func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, _ map[string]st
 		case xml.TextToken:
 			t.Data = parse.ReplaceMultipleWhitespace(parse.TrimWhitespace(t.Data))
 			if tag == svg.Style && len(t.Data) > 0 {
-				b, restore := buffer.NullTerminator(t.Data)
+				b, restorer := buffer.NullTerminator(t.Data)
 				if err := m.MinifyMimetype(defaultStyleType, w, buffer.NewBytes(b), defaultStyleParams); err != nil {
 					if err != minify.ErrNotExist {
 						return err
@@ -83,14 +83,14 @@ func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, _ map[string]st
 						return err
 					}
 				}
-				restore()
+				restorer.Restore()
 			} else if _, err := w.Write(t.Data); err != nil {
 				return err
 			}
 		case xml.CDATAToken:
 			if tag == svg.Style {
 				minifyBuffer.Reset()
-				b, restore := buffer.NullTerminator(t.Text)
+				b, restorer := buffer.NullTerminator(t.Text)
 				if err := m.MinifyMimetype(defaultStyleType, minifyBuffer, buffer.NewBytes(b), defaultStyleParams); err == nil {
 					t.Data = append(t.Data[:9], minifyBuffer.Bytes()...)
 					t.Text = t.Data[9:]
@@ -98,7 +98,7 @@ func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, _ map[string]st
 				} else if err != minify.ErrNotExist {
 					return err
 				}
-				restore()
+				restorer.Restore()
 			}
 			var useText bool
 			if t.Text, useText = xml.EscapeCDATAVal(&attrByteBuffer, t.Text); useText {
@@ -170,13 +170,13 @@ func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, _ map[string]st
 				defaultStyleType = val
 			} else if attr == svg.Style {
 				minifyBuffer.Reset()
-				b, restore := buffer.NullTerminator(val)
+				b, restorer := buffer.NullTerminator(val)
 				if err := m.MinifyMimetype(defaultStyleType, minifyBuffer, buffer.NewBytes(b), defaultInlineStyleParams); err == nil {
 					val = minifyBuffer.Bytes()
 				} else if err != minify.ErrNotExist {
 					return err
 				}
-				restore()
+				restorer.Restore()
 			} else if attr == svg.D {
 				val = p.ShortenPathData(val)
 			} else if attr == svg.ViewBox {
