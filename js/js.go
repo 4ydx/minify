@@ -34,8 +34,10 @@ func (o *Minifier) Minify(_ *minify.M, w io.Writer, r io.Reader, _ map[string]st
 	lineTerminatorQueued := false
 	whitespaceQueued := false
 
-	l := js.NewLexer(r)
-	defer l.Restore()
+	l, err := js.NewLexer(r)
+	if err != nil {
+		return err
+	}
 
 	for {
 		tt, data := l.Next()

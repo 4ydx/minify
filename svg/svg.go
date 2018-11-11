@@ -52,8 +52,10 @@ func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, _ map[string]st
 	minifyBuffer := buffer.NewWriter(make([]byte, 0, 64))
 	attrByteBuffer := make([]byte, 0, 64)
 
-	l := xml.NewLexer(r)
-	defer l.Restore()
+	l, err := xml.NewLexer(r)
+	if err != nil {
+		return err
+	}
 
 	tb := NewTokenBuffer(l)
 	for {
@@ -73,26 +75,30 @@ func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, _ map[string]st
 		case xml.TextToken:
 			t.Data = parse.ReplaceMultipleWhitespace(parse.TrimWhitespace(t.Data))
 			if tag == svg.Style && len(t.Data) > 0 {
-				if err := m.MinifyMimetype(defaultStyleType, w, buffer.NewReader(t.Data), defaultStyleParams); err != nil {
+				b, restore := buffer.NullTerminator(t.Data)
+				if err := m.MinifyMimetype(defaultStyleType, w, buffer.NewBytes(b), defaultStyleParams); err != nil {
 					if err != minify.ErrNotExist {
 						return err
 					} else if _, err := w.Write(t.Data); err != nil {
 						return err
 					}
 				}
+				restore()
 			} else if _, err := w.Write(t.Data); err != nil {
 				return err
 			}
 		case xml.CDATAToken:
 			if tag == svg.Style {
 				minifyBuffer.Reset()
-				if err := m.MinifyMimetype(defaultStyleType, minifyBuffer, buffer.NewReader(t.Text), defaultStyleParams); err == nil {
+				b, restore := buffer.NullTerminator(t.Text)
+				if err := m.MinifyMimetype(defaultStyleType, minifyBuffer, buffer.NewBytes(b), defaultStyleParams); err == nil {
 					t.Data = append(t.Data[:9], minifyBuffer.Bytes()...)
 					t.Text = t.Data[9:]
 					t.Data = append(t.Data, cdataEndBytes...)
 				} else if err != minify.ErrNotExist {
 					return err
 				}
+				restore()
 			}
 			var useText bool
 			if t.Text, useText = xml.EscapeCDATAVal(&attrByteBuffer, t.Text); useText {
@@ -164,11 +170,13 @@ func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, _ map[string]st
 				defaultStyleType = val
 			} else if attr == svg.Style {
 				minifyBuffer.Reset()
-				if err := m.MinifyMimetype(defaultStyleType, minifyBuffer, buffer.NewReader(val), defaultInlineStyleParams); err == nil {
+				b, restore := buffer.NullTerminator(val)
+				if err := m.MinifyMimetype(defaultStyleType, minifyBuffer, buffer.NewBytes(b), defaultInlineStyleParams); err == nil {
 					val = minifyBuffer.Bytes()
 				} else if err != minify.ErrNotExist {
 					return err
 				}
+				restore()
 			} else if attr == svg.D {
 				val = p.ShortenPathData(val)
 			} else if attr == svg.ViewBox {

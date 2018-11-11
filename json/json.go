@@ -30,8 +30,10 @@ func Minify(m *minify.M, w io.Writer, r io.Reader, params map[string]string) err
 func (o *Minifier) Minify(_ *minify.M, w io.Writer, r io.Reader, _ map[string]string) error {
 	skipComma := true
 
-	p := json.NewParser(r)
-	defer p.Restore()
+	p, err := json.NewParser(r)
+	if err != nil {
+		return err
+	}
 
 	for {
 		state := p.State()

@@ -36,8 +36,10 @@ func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, _ map[string]st
 
 	attrByteBuffer := make([]byte, 0, 64)
 
-	l := xml.NewLexer(r)
-	defer l.Restore()
+	l, err := xml.NewLexer(r)
+	if err != nil {
+		return err
+	}
 
 	tb := NewTokenBuffer(l)
 	for {

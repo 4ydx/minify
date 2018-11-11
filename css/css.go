@@ -53,14 +53,17 @@ func Minify(m *minify.M, w io.Writer, r io.Reader, params map[string]string) err
 // Minify minifies CSS data, it reads from r and writes to w.
 func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, params map[string]string) error {
 	isInline := params != nil && params["inline"] == "1"
+	p, err := css.NewParser(r, isInline)
+	if err != nil {
+		return err
+	}
+
 	c := &cssMinifier{
 		m: m,
 		w: w,
-		p: css.NewParser(r, isInline),
+		p: p,
 		o: o,
 	}
-	defer c.p.Restore()
-
 	if err := c.minifyGrammar(); err != nil && err != io.EOF {
 		return err
 	}
