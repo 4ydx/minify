@@ -11,6 +11,7 @@ import (
 	"github.com/tdewolff/minify/v2"
 	"github.com/tdewolff/parse/v2"
 	"github.com/tdewolff/parse/v2/css"
+	"github.com/tdewolff/parse/v2/buffer"
 )
 
 var (
@@ -52,16 +53,16 @@ func Minify(m *minify.M, w io.Writer, r io.Reader, params map[string]string) err
 
 // Minify minifies CSS data, it reads from r and writes to w.
 func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, params map[string]string) error {
-	isInline := params != nil && params["inline"] == "1"
-	p, err := css.NewParser(r, isInline)
+	bl, err := buffer.NewReader(r)
 	if err != nil {
 		return err
 	}
 
+	isInline := params != nil && params["inline"] == "1"
 	c := &cssMinifier{
 		m: m,
 		w: w,
-		p: p,
+	    p: css.NewParser(bl, isInline),
 		o: o,
 	}
 	if err := c.minifyGrammar(); err != nil && err != io.EOF {

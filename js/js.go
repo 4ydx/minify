@@ -7,6 +7,7 @@ import (
 	"github.com/tdewolff/minify/v2"
 	"github.com/tdewolff/parse/v2"
 	"github.com/tdewolff/parse/v2/js"
+	"github.com/tdewolff/parse/v2/buffer"
 )
 
 var (
@@ -34,11 +35,12 @@ func (o *Minifier) Minify(_ *minify.M, w io.Writer, r io.Reader, _ map[string]st
 	lineTerminatorQueued := false
 	whitespaceQueued := false
 
-	l, err := js.NewLexer(r)
+	bl, err := buffer.NewReader(r)
 	if err != nil {
 		return err
 	}
 
+	l := js.NewLexer(bl)
 	for {
 		tt, data := l.Next()
 		if tt == js.ErrorToken {

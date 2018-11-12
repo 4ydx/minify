@@ -1,18 +1,17 @@
 package xml // import "github.com/tdewolff/minify/xml"
 
 import (
-	"bytes"
 	"testing"
 
 	"github.com/tdewolff/parse/v2/xml"
+	"github.com/tdewolff/parse/v2/buffer"
 	"github.com/tdewolff/test"
 )
 
 func TestBuffer(t *testing.T) {
 	//    0 12  3           45   6   7   8             9   0
 	s := `<p><a href="//url">text</a>text<!--comment--></p>`
-	l, err := xml.NewLexer(bytes.NewBufferString(s))
-	test.Error(t, err)
+	l := xml.NewLexer(buffer.NewString(s))
 	z := NewTokenBuffer(l)
 
 	tok := z.Shift()

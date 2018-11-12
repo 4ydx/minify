@@ -152,7 +152,7 @@ func (m *M) MinifyMimetype(mimetype []byte, w io.Writer, r io.Reader, params map
 // It returns an error when no such mimetype exists (ErrNotExist) or any error occurred in the minifier function.
 func (m *M) Bytes(mediatype string, v []byte) ([]byte, error) {
 	out := buffer.NewWriter(make([]byte, 0, len(v)))
-	if err := m.Minify(mediatype, out, buffer.NewReader(v)); err != nil {
+	if err := m.Minify(mediatype, out, buffer.NewBytesReader(v)); err != nil {
 		return v, err
 	}
 	return out.Bytes(), nil
@@ -162,7 +162,7 @@ func (m *M) Bytes(mediatype string, v []byte) ([]byte, error) {
 // It returns an error when no such mimetype exists (ErrNotExist) or any error occurred in the minifier function.
 func (m *M) String(mediatype string, v string) (string, error) {
 	out := buffer.NewWriter(make([]byte, 0, len(v)))
-	if err := m.Minify(mediatype, out, buffer.NewReader([]byte(v))); err != nil {
+	if err := m.Minify(mediatype, out, buffer.NewBytesReader([]byte(v))); err != nil {
 		return v, err
 	}
 	return string(out.Bytes()), nil
