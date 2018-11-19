@@ -52,10 +52,11 @@ func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, _ map[string]st
 	minifyBuffer := buffer.NewWriter(make([]byte, 0, 64))
 	attrByteBuffer := make([]byte, 0, 64)
 
-	bl, err := buffer.NewReader(r)
+	bl, err := buffer.NewLexerReader(r)
 	if err != nil {
 		return err
 	}
+    defer bl.Restore()
 
 	l := xml.NewLexer(bl)
 	tb := NewTokenBuffer(l)
@@ -76,7 +77,7 @@ func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, _ map[string]st
 		case xml.TextToken:
 			t.Data = parse.ReplaceMultipleWhitespace(parse.TrimWhitespace(t.Data))
 			if tag == svg.Style && len(t.Data) > 0 {
-				if err := m.MinifyMimetype(defaultStyleType, w, buffer.NewBytesReader(t.Data), defaultStyleParams); err != nil {
+				if err := m.MinifyMimetype(defaultStyleType, w, buffer.NewReader(t.Data), defaultStyleParams); err != nil {
 					if err != minify.ErrNotExist {
 						return err
 					} else if _, err := w.Write(t.Data); err != nil {
@@ -89,7 +90,7 @@ func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, _ map[string]st
 		case xml.CDATAToken:
 			if tag == svg.Style {
 				minifyBuffer.Reset()
-				if err := m.MinifyMimetype(defaultStyleType, minifyBuffer, buffer.NewBytesReader(t.Text), defaultStyleParams); err == nil {
+				if err := m.MinifyMimetype(defaultStyleType, minifyBuffer, buffer.NewReader(t.Text), defaultStyleParams); err == nil {
 					t.Data = append(t.Data[:9], minifyBuffer.Bytes()...)
 					t.Text = t.Data[9:]
 					t.Data = append(t.Data, cdataEndBytes...)
@@ -167,7 +168,7 @@ func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, _ map[string]st
 				defaultStyleType = val
 			} else if attr == svg.Style {
 				minifyBuffer.Reset()
-				if err := m.MinifyMimetype(defaultStyleType, minifyBuffer, buffer.NewBytesReader(val), defaultInlineStyleParams); err == nil {
+				if err := m.MinifyMimetype(defaultStyleType, minifyBuffer, buffer.NewReader(val), defaultInlineStyleParams); err == nil {
 					val = minifyBuffer.Bytes()
 				} else if err != minify.ErrNotExist {
 					return err

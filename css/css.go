@@ -53,10 +53,11 @@ func Minify(m *minify.M, w io.Writer, r io.Reader, params map[string]string) err
 
 // Minify minifies CSS data, it reads from r and writes to w.
 func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, params map[string]string) error {
-	bl, err := buffer.NewReader(r)
+	bl, err := buffer.NewLexerReader(r)
 	if err != nil {
 		return err
 	}
+    defer bl.Restore()
 
 	isInline := params != nil && params["inline"] == "1"
 	c := &cssMinifier{

@@ -35,10 +35,11 @@ func (o *Minifier) Minify(_ *minify.M, w io.Writer, r io.Reader, _ map[string]st
 	lineTerminatorQueued := false
 	whitespaceQueued := false
 
-	bl, err := buffer.NewReader(r)
+	bl, err := buffer.NewLexerReader(r)
 	if err != nil {
 		return err
 	}
+    defer bl.Restore()
 
 	l := js.NewLexer(bl)
 	for {

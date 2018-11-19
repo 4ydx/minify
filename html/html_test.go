@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/url"
 	"os"
 	"regexp"
@@ -135,13 +136,11 @@ func TestHTML(t *testing.T) {
 	m := minify.New()
 	m.AddFunc("text/html", Minify)
 	m.AddFunc("text/css", func(_ *minify.M, w io.Writer, r io.Reader, _ map[string]string) error {
-		b := r.(interface{ Bytes() []byte }).Bytes()
-        _, err := w.Write(b)
+		_, err := io.Copy(w, r)
         return err
 	})
 	m.AddFunc("application/javascript", func(_ *minify.M, w io.Writer, r io.Reader, _ map[string]string) error {
-		b := r.(interface{ Bytes() []byte }).Bytes()
-        _, err := w.Write(b)
+		_, err := io.Copy(w, r)
         return err
 	})
 	for _, tt := range htmlTests {
@@ -273,15 +272,9 @@ func TestSpecialTagClosing(t *testing.T) {
 	m := minify.New()
 	m.AddFunc("text/html", Minify)
 	m.AddFunc("text/css", func(_ *minify.M, w io.Writer, r io.Reader, _ map[string]string) error {
-		var b []byte
-		if rb, ok := r.(interface{ Bytes() []byte }); ok {
-			b = rb.Bytes()
-		} else {
-			panic("Bytes not implemented")
-		}
-		b = b[:len(b)-1]
+        b, err := ioutil.ReadAll(r)
 		test.String(t, string(b), "</script>")
-		_, err := w.Write(b)
+		_, err = w.Write(b)
 		return err
 	})
 

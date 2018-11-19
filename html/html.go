@@ -57,10 +57,11 @@ func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, _ map[string]st
 	attrMinifyBuffer := buffer.NewWriter(make([]byte, 0, 64))
 	attrByteBuffer := make([]byte, 0, 64)
 
-    bl, err := buffer.NewReader(r)
+    bl, err := buffer.NewLexerReader(r)
 	if err != nil {
 		return err
 	}
+    defer bl.Restore()
 
 	l := html.NewLexer(bl)
 	tb := NewTokenBuffer(l)
@@ -87,7 +88,7 @@ func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, _ map[string]st
 					if _, err := w.Write(t.Data[:begin]); err != nil {
 						return err
 					}
-					if err := o.Minify(m, w, buffer.NewBytesReader(t.Data[begin:end]), nil); err != nil {
+					if err := o.Minify(m, w, buffer.NewReader(t.Data[begin:end]), nil); err != nil {
 						return err
 					}
 					if _, err := w.Write(t.Data[end:]); err != nil {
@@ -98,7 +99,7 @@ func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, _ map[string]st
 				}
 			}
 		case html.SvgToken:
-			if err := m.MinifyMimetype(svgMimeBytes, w, buffer.NewBytesReader(t.Data), nil); err != nil {
+			if err := m.MinifyMimetype(svgMimeBytes, w, buffer.NewReader(t.Data), nil); err != nil {
 				if err != minify.ErrNotExist {
 					return err
 				} else if _, err := w.Write(t.Data); err != nil {
@@ -106,7 +107,7 @@ func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, _ map[string]st
 				}
 			}
 		case html.MathToken:
-			if err := m.MinifyMimetype(mathMimeBytes, w, buffer.NewBytesReader(t.Data), nil); err != nil {
+			if err := m.MinifyMimetype(mathMimeBytes, w, buffer.NewReader(t.Data), nil); err != nil {
 				if err != minify.ErrNotExist {
 					return err
 				} else if _, err := w.Write(t.Data); err != nil {
@@ -128,7 +129,7 @@ func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, _ map[string]st
 					} else if rawTagHash == html.Style {
 						mimetype = cssMimeBytes
 					}
-					if err := m.MinifyMimetype(mimetype, w, buffer.NewBytesReader(t.Data), params); err != nil {
+					if err := m.MinifyMimetype(mimetype, w, buffer.NewReader(t.Data), params); err != nil {
 						if err != minify.ErrNotExist {
 							return err
 						} else if _, err := w.Write(t.Data); err != nil {
@@ -393,7 +394,7 @@ func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, _ map[string]st
 					// CSS and JS minifiers for attribute inline code
 					if attr.Hash == html.Style {
 						attrMinifyBuffer.Reset()
-						if err := m.MinifyMimetype(cssMimeBytes, attrMinifyBuffer, buffer.NewBytesReader(val), inlineParams); err == nil {
+						if err := m.MinifyMimetype(cssMimeBytes, attrMinifyBuffer, buffer.NewReader(val), inlineParams); err == nil {
 							val = attrMinifyBuffer.Bytes()
 						} else if err != minify.ErrNotExist {
 							return err
@@ -406,7 +407,7 @@ func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, _ map[string]st
 							val = val[11:]
 						}
 						attrMinifyBuffer.Reset()
-						if err := m.MinifyMimetype(jsMimeBytes, attrMinifyBuffer, buffer.NewBytesReader(val), nil); err == nil {
+						if err := m.MinifyMimetype(jsMimeBytes, attrMinifyBuffer, buffer.NewReader(val), nil); err == nil {
 							val = attrMinifyBuffer.Bytes()
 						} else if err != minify.ErrNotExist {
 							return err

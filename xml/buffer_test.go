@@ -11,7 +11,7 @@ import (
 func TestBuffer(t *testing.T) {
 	//    0 12  3           45   6   7   8             9   0
 	s := `<p><a href="//url">text</a>text<!--comment--></p>`
-	l := xml.NewLexer(buffer.NewString(s))
+	l := xml.NewLexer(buffer.NewLexerString(s))
 	z := NewTokenBuffer(l)
 
 	tok := z.Shift()
