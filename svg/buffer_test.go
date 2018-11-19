@@ -4,9 +4,9 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/tdewolff/parse/v2/buffer"
 	"github.com/tdewolff/parse/v2/svg"
 	"github.com/tdewolff/parse/v2/xml"
-	"github.com/tdewolff/parse/v2/buffer"
 	"github.com/tdewolff/test"
 )
 

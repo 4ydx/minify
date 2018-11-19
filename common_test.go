@@ -3,7 +3,7 @@ package minify // import "github.com/tdewolff/minify"
 import (
 	"fmt"
 	"io"
-    "io/ioutil"
+	"io/ioutil"
 	"math"
 	"math/rand"
 	"strconv"

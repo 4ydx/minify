@@ -3,8 +3,8 @@ package html // import "github.com/tdewolff/minify/html"
 import (
 	"testing"
 
-	"github.com/tdewolff/parse/v2/html"
 	"github.com/tdewolff/parse/v2/buffer"
+	"github.com/tdewolff/parse/v2/html"
 	"github.com/tdewolff/test"
 )
 

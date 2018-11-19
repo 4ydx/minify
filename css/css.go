@@ -10,8 +10,8 @@ import (
 
 	"github.com/tdewolff/minify/v2"
 	"github.com/tdewolff/parse/v2"
-	"github.com/tdewolff/parse/v2/css"
 	"github.com/tdewolff/parse/v2/buffer"
+	"github.com/tdewolff/parse/v2/css"
 )
 
 var (
@@ -57,13 +57,13 @@ func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, params map[stri
 	if err != nil {
 		return err
 	}
-    defer bl.Restore()
+	defer bl.Restore()
 
 	isInline := params != nil && params["inline"] == "1"
 	c := &cssMinifier{
 		m: m,
 		w: w,
-	    p: css.NewParser(bl, isInline),
+		p: css.NewParser(bl, isInline),
 		o: o,
 	}
 	if err := c.minifyGrammar(); err != nil && err != io.EOF {

@@ -5,8 +5,8 @@ import (
 	"io"
 
 	"github.com/tdewolff/minify/v2"
-	"github.com/tdewolff/parse/v2/json"
 	"github.com/tdewolff/parse/v2/buffer"
+	"github.com/tdewolff/parse/v2/json"
 )
 
 var (
@@ -35,7 +35,7 @@ func (o *Minifier) Minify(_ *minify.M, w io.Writer, r io.Reader, _ map[string]st
 	if err != nil {
 		return err
 	}
-    defer bl.Restore()
+	defer bl.Restore()
 
 	p := json.NewParser(bl)
 	for {

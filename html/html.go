@@ -57,11 +57,11 @@ func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, _ map[string]st
 	attrMinifyBuffer := buffer.NewWriter(make([]byte, 0, 64))
 	attrByteBuffer := make([]byte, 0, 64)
 
-    bl, err := buffer.NewLexerReader(r)
+	bl, err := buffer.NewLexerReader(r)
 	if err != nil {
 		return err
 	}
-    defer bl.Restore()
+	defer bl.Restore()
 
 	l := html.NewLexer(bl)
 	tb := NewTokenBuffer(l)

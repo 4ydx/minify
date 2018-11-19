@@ -56,7 +56,7 @@ func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, _ map[string]st
 	if err != nil {
 		return err
 	}
-    defer bl.Restore()
+	defer bl.Restore()
 
 	l := xml.NewLexer(bl)
 	tb := NewTokenBuffer(l)

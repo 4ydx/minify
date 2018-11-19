@@ -3,8 +3,8 @@ package xml // import "github.com/tdewolff/minify/xml"
 import (
 	"testing"
 
-	"github.com/tdewolff/parse/v2/xml"
 	"github.com/tdewolff/parse/v2/buffer"
+	"github.com/tdewolff/parse/v2/xml"
 	"github.com/tdewolff/test"
 )
 

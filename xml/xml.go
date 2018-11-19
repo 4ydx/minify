@@ -6,8 +6,8 @@ import (
 
 	"github.com/tdewolff/minify/v2"
 	"github.com/tdewolff/parse/v2"
-	"github.com/tdewolff/parse/v2/xml"
 	"github.com/tdewolff/parse/v2/buffer"
+	"github.com/tdewolff/parse/v2/xml"
 )
 
 var (
@@ -37,11 +37,11 @@ func (o *Minifier) Minify(m *minify.M, w io.Writer, r io.Reader, _ map[string]st
 
 	attrByteBuffer := make([]byte, 0, 64)
 
-    bl, err := buffer.NewLexerReader(r)
+	bl, err := buffer.NewLexerReader(r)
 	if err != nil {
 		return err
 	}
-    defer bl.Restore()
+	defer bl.Restore()
 
 	l := xml.NewLexer(bl)
 	tb := NewTokenBuffer(l)
