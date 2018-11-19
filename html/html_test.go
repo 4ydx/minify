@@ -273,6 +273,7 @@ func TestSpecialTagClosing(t *testing.T) {
 	m.AddFunc("text/html", Minify)
 	m.AddFunc("text/css", func(_ *minify.M, w io.Writer, r io.Reader, _ map[string]string) error {
 		b, err := ioutil.ReadAll(r)
+		test.Error(t, err)
 		test.String(t, string(b), "</script>")
 		_, err = w.Write(b)
 		return err
